@@ -5,7 +5,9 @@ class HeadingWidget extends React.Component {
         editing: this.props.editing,
         widget: this.props.widget,
         value: this.props.widget.type,
-        preview: false
+        preview: false,
+        text: this.props.widget.text,
+
     };
     change = (e) => {
         this.setState({value : e.target.value})
@@ -32,14 +34,15 @@ class HeadingWidget extends React.Component {
                     !this.state.editing &&
 
                     <div>
-                        {console.log(this.props.editingWidgetId)}
                         {this.props.widget.size === 1 && <h1>{this.props.widget.title}</h1>}
                         {this.props.widget.size === 2 && <h2>{this.props.widget.title}</h2>}
                         {this.props.widget.size === 3 && <h3>{this.props.widget.title}</h3>}
                         {this.props.widget.size === 4 && <h4>{this.props.widget.title}</h4>}
                         {this.props.widget.size === 5 && <h5>{this.props.widget.title}</h5>}
                         {this.props.widget.size === 6 && <h6>{this.props.widget.title}</h6>}
+                        {this.state.text}
                     </div>
+
                 }
                 {
                     this.state.editing &&
@@ -94,9 +97,16 @@ class HeadingWidget extends React.Component {
                                 </div>
 
                                 <div>
-                                    <input type="text" className="form-control"
-                                           placeholder={"Heading text"}
-                                           aria-label="Text input with segmented dropdown button"/>
+                                    <input className="form-control"
+                                          placeholder={"Paragraph text"}
+                                          onChange={(e) => {
+                                              this.setState({
+                                                  text: e.target.value
+                                              })
+                                          }
+                                          }
+                                          value={this.state.text}
+                                          aria-label="Text input with segmented dropdown button"/>
                                     <br/>
                                     <select className="custom-select" id="inputGroupSelect01"
                                             onChange={(e) => {
@@ -134,8 +144,16 @@ class HeadingWidget extends React.Component {
                              }
                             {this.state.preview &&
                             <div>
-                                {<h3>{this.props.widget.title}</h3>}
-                                <h5>{this.props.widget.text}</h5>
+                                {this.props.widget.size === 1 && <h1>{this.props.widget.title}</h1>}
+                                {this.props.widget.size === 2 && <h2>{this.props.widget.title}</h2>}
+                                {this.props.widget.size === 3 && <h3>{this.props.widget.title}</h3>}
+                                {this.props.widget.size === 4 && <h4>{this.props.widget.title}</h4>}
+                                {this.props.widget.size === 5 && <h5>{this.props.widget.title}</h5>}
+                                {this.props.widget.size === 6 && <h6>{this.props.widget.title}</h6>}
+
+                                {this.state.text}
+
+
                             </div>
                             }
                         </div>
