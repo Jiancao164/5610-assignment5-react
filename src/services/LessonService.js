@@ -1,7 +1,7 @@
 import {LESSONS_API_URL, MODULES_LESSONS_API_URL} from "../common/constants";
 
 export const findLessonsForModule = (moduleId) =>
-    fetch(`https://wbdv-generic-server.herokuapp.com/api/jannunzi/module/${moduleId}/lessons`)
+    fetch(`https://wbdv-generic-server.herokuapp.com/api/001358744/module/${moduleId}/lessons`)
         .then(response => response.json())
 
 export const createLesson = (moduleId, lesson) =>

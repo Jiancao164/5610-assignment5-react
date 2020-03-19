@@ -1,9 +1,9 @@
 export const findWidgetsForTopic = (tid) =>
-    fetch(`http://localhost:8080/api/topics/${tid}/widgets/`)
+    fetch(`https://murmuring-inlet-83447.herokuapp.com/api/topics/${tid}/widgets/`)
         .then(response => response.json());
-
+//`https://wbdv-generic-server.herokuapp.com/api/001358744/lesson/${lessonId}/topics`
 export const updateWidget = (wid, widget) =>
-    fetch(`http://localhost:8080/api/widgets/${wid}`, {
+    fetch(`https://murmuring-inlet-83447.herokuapp.com/api/widgets/${wid}`, {
         method: "PUT",
         body: JSON.stringify(widget),
         headers: {
@@ -12,17 +12,17 @@ export const updateWidget = (wid, widget) =>
     }).then(response => response.json());
 
 export const findAllWidgets = () =>
-    fetch("http://localhost:8080/widgets")
+    fetch("https://murmuring-inlet-83447.herokuapp.com/widgets")
         .then(response => response.json())
 
 export const deleteWidget = (widgetId) =>
-    fetch(`http://localhost:8080/api/widgets/${widgetId}`, {
+    fetch(`https://murmuring-inlet-83447.herokuapp.com/api/widgets/${widgetId}`, {
         method: "DELETE"
     }).then(response => response.json());
 
 
 export const createWidget = (tid, widget) =>
-    fetch(`http://localhost:8080/api/topics/${tid}/widgets`, {
+    fetch(`https://murmuring-inlet-83447.herokuapp.com/api/topics/${tid}/widgets`, {
         method: "POST",
         body: JSON.stringify(widget),
         headers: {
