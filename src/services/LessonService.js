@@ -1,8 +1,8 @@
-import {LESSONS_API_URL, MODULES_LESSONS_API_URL} from "../common/constants";
+import {MODULES_LESSONS_API_URL, LESSONS_API_URL} from "../common/constants";
 
 export const findLessonsForModule = (moduleId) =>
-    fetch(`https://wbdv-generic-server.herokuapp.com/api/001358744/module/${moduleId}/lessons`)
-        .then(response => response.json())
+    fetch(MODULES_LESSONS_API_URL(moduleId))
+        .then(response => response.json());
 
 export const createLesson = (moduleId, lesson) =>
     fetch(MODULES_LESSONS_API_URL(moduleId), {
@@ -11,16 +11,20 @@ export const createLesson = (moduleId, lesson) =>
         headers: {
             'content-type': 'application/json'
         }
-    }).then(response => response.json())
+    }).then(response => response.json());
 
-export const updateLesson = async (lesson) =>
-{
-    const response = await fetch(`${LESSONS_API_URL}/${lesson._id}`, {
-        method: 'PUT',
+export const updateLesson = (lessonId, lesson) =>
+    fetch(`${LESSONS_API_URL}/${lessonId}`, {
+        method: "PUT",
         body: JSON.stringify(lesson),
         headers: {
             'content-type': 'application/json'
         }
-    })
-        return await response.json()
-}
+    }).then(response => response.json());
+
+export const deleteLesson = (lessonId) =>
+    fetch(`${LESSONS_API_URL}/${lessonId}`, {
+        method: "DELETE",
+    }).then(response => response.json());
+
+

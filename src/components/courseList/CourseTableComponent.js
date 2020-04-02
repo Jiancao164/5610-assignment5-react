@@ -1,22 +1,14 @@
 import React from 'react'
-import CourseRowComponent from "./CourseRowComponent";
 import CourseRowComponentStateful from "./CourseRowComponentStateful";
 
-const CourseTableComponent = ({showEditor, editCourse, deleteCourse, courses}) =>
+const CourseTableComponent = ({showEditor, editCourse, deleteCourse, courses, saveCourse}) =>
     <div>
-        <h3>Course Table {courses.length}</h3>
-        <ul className="list-group">
-            {
-                courses.map(course =>
-                    <CourseRowComponentStateful
-                        showEditor={showEditor}
-                        editCourse={editCourse}
-                        deleteCourse={deleteCourse}
-                        key={course._id}
-                        course={course}/>
-                )
-            }
-        </ul>
+            <CourseRowComponentStateful
+                saveCourse={saveCourse}
+                showEditor={showEditor}
+                editCourse={editCourse}
+                deleteCourse={deleteCourse}
+                courses={courses}/>
     </div>
 
 export default CourseTableComponent

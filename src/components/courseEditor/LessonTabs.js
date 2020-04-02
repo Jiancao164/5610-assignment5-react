@@ -1,105 +1,76 @@
 import React from "react";
 import {connect} from "react-redux";
-import {LESSONS_API_URL, MODULES_LESSONS_API_URL} from "../../common/constants";
-import {updateLesson} from "../../services/LessonService";
-import ModuleListItem from "./ModuleListItem";
+import {createLesson, deleteLesson, findLessonsForModule, updateLesson} from "../../services/LessonService";
+import {
+    createLessonAction,
+    deleteLessonAction,
+    findLessonsForModuleAction,
+    updateLessonAction
+} from "../../actions/lessonActions";
+import LessonTabsItem from "./LessonTabsItem";
+import {findCourse} from "../../services/CourseService";
+
 
 class LessonTabs extends React.Component {
-
+    constructor(props) {
+        super(props);
+        this.state = {
+            activeLessonId: this.props.lessonId,
+            editingLessonId: '',
+            cs: {}
+        }
+    }
     componentDidMount() {
         this.props.findLessonsForModule(this.props.moduleId)
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-    if(this.props.moduleId !== prevProps.moduleId) {
+        if(this.props.moduleId !== prevProps.moduleId) {
             this.props.findLessonsForModule(this.props.moduleId)
         }
     }
 
-
-    state = {
-        selectedLessonId: "qq",
-        editingLessonId: '',
-        lesson: {
-            title: '',
-            _id: ''
-        }
-    }
-
-    edit=(lesson) => {
-    const lessonId = lesson._id
-    this.props.history.push(`/course-editor/${this.props.courseId}/module/${this.props.moduleId}/lesson/${lessonId}`)
-    this.setState({
-    editingModuleId: module._id
-    })
-    }
-
-    select = (lesson) => {
-        const lessonId = lesson._id
-        console.log(lesson._id)
-        this.props.history.push(`/course-editor/${this.props.courseId}/module/${this.props.moduleId}/lesson/${lessonId}`)
+    edit = (lesson) => {
+        const lessonId = lesson._id;
+        this.props.history.push(`/course-editor/${this.props.courseId}/modules/${this.props.moduleId}/lessons/${lessonId}`);
         this.setState({
-            selectedLessonId: lesson._id
+            editingLessonId: lesson._id
         })
-    }
+    };
 
-    // editing={module._id === this.state.editingModuleId}
+    select = (lesson) =>  {
+        const lessonId = lesson._id;
+        console.log(lesson)
+        this.props.history.push(`/course-editor/${this.props.courseId}/modules/${this.props.moduleId}/lessons/${lessonId}`);
+        this.setState({
+            activeLessonId: lesson._id
+        })
+    };
 
+    save = () => {
+        this.setState({
+            editingLessonId: ''
+        })
+    };
 
     render() {
         return(
-            <ul className="nav nav-tabs active">
+            <ul className="nav nav-tabs">
                 {
                     this.props.lessons && this.props.lessons.map(lesson =>
-                        <li className={`nav-item `}
-                            onClick={() => {this.select(lesson) } }
-                            key={lesson._id} >
-                            {console.log(this.state.selectedLessonId)}
-                            <a className={`nav-link ${console.log(this.state.selectedLessonId === lesson._id)}
-                                            ${(this.state.editingLessonId === lesson._id || this.state.selectedLessonId === lesson._id)?'active':''}`}>
-                                {this.state.editingLessonId !== lesson._id &&
-                                <span>{lesson.title}</span>}
-                                {this.state.editingLessonId === lesson._id &&
-                                <input
-                                    onChange={(e) => {
-                                        const newTitle = e.target.value
-                                        this.setState(prevState => ({
-                                            lesson: {
-                                                ...prevState.lesson,
-                                                title: newTitle
-                                            }
-                                        }))
-                                    }}
-                                    value={this.state.lesson.title}/>}
-                                <button onClick={() =>
-                                    {
-                                        this.props.updateLesson(this.state.lesson)
-                                            .then(() =>
-                                                this.setState({
-                                                    editingLessonId: ''
-                                                })
-                                            )
-                                    }
-                                }>
-                                    Save
-                                </button>
-                                <button onClick={
-                                    () => this.props.deleteLesson(lesson._id)}>
-                                    X
-                                </button>
-                                <button onClick={() => {
-                                    this.setState({
-                                        lesson: lesson,
-                                        editingLessonId: lesson._id
-                                    })
-                                }}>
-                                    Edit
-                                </button>
-                            </a>
-                        </li>)
+                        <LessonTabsItem
+                            key={lesson._id}
+                            edit={this.edit}
+                            select={this.select}
+                            save={this.save}
+                            updateLesson={this.props.updateLesson}
+                            deleteLesson={this.props.deleteLesson}
+                            editing={lesson._id === this.state.editingLessonId}
+                            active={lesson._id === this.state.activeLessonId}
+                            lesson={lesson}/>)
                 }
                 <li className="nav-item">
-                    <button onClick={() => this.props.addLesson(this.props.moduleId)}>+</button>
+                    <i className={"fas fa-plus lesson-plus"} onClick={() => this.props.createLesson(this.props.moduleId, {title: 'New Lesson'})}/>
                 </li>
             </ul>
         )
@@ -109,58 +80,31 @@ class LessonTabs extends React.Component {
 
 const stateToPropertyMapper = (state) => ({
     lessons: state.lessons.lessons
-})
+});
 
-const dispatcherToPropertyMapper = (dispatcher) => ({
-    findLessonsForModule: moduleId =>
-        fetch(MODULES_LESSONS_API_URL(moduleId))
-            .then(response => response.json())
-            .then(lessons => dispatcher({
-                type: 'FIND_LESSONS_FOR_MODULE',
-                lessons: lessons
-            })),
-    updateLesson: async (lesson) => {
-        const actualLesson = await updateLesson(lesson)
-        dispatcher({
-            type: 'UPDATE_LESSON',
-            lesson: actualLesson,
-            lessonId: actualLesson._id
-        })
-    },
-    addLesson: (moduleId) =>
-        fetch(MODULES_LESSONS_API_URL(moduleId), {
-            method: 'POST',
-            body: JSON.stringify({title: 'New Lesson'}),
-            headers: {
-                'content-type': 'application/json'
-            }
-        }).then(response => response.json())
+const dispatchToPropertyMapper = (dispatch) => ({
+    createLesson: (moduleId, lesson) =>
+        createLesson(moduleId, lesson)
             .then(actualLesson =>
-                dispatcher({
-                    type: 'CREATE_LESSON',
-                    lesson: actualLesson
-                })),
-    deleteLesson: (lessonId) =>
-        fetch(`${LESSONS_API_URL}/${lessonId}`, {
-            method: 'DELETE'
-        }).then(response => response.json())
-            .then(status =>
-                dispatcher({
-                    type: 'DELETE_LESSON',
-                    lessonId: lessonId
-                })),
-    findAllLessons: () =>
-        fetch(LESSONS_API_URL)
-            .then(response => response.json())
+                dispatch(createLessonAction(actualLesson))),
+    findLessonsForModule: (moduleId) =>
+        findLessonsForModule(moduleId)
             .then(lessons =>
-                dispatcher({
-                    type: 'FIND_ALL_LESSONS',
-                    lessons: lessons
-                })
-            )
-})
+                dispatch(findLessonsForModuleAction(lessons))),
+    updateLesson: (lessonId, lesson) => {
+        updateLesson(lessonId, lesson)
+            .then(actualLesson =>
+                dispatch(updateLessonAction(actualLesson)))
+    },
+    deleteLesson: (lessonId) => {
+        deleteLesson(lessonId)
+            .then(status =>
+                dispatch(deleteLessonAction(lessonId)))
+    }
+});
 
 export default connect(
     stateToPropertyMapper,
-    dispatcherToPropertyMapper
+    dispatchToPropertyMapper
 )(LessonTabs)
+

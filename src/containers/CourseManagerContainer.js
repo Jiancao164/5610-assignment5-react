@@ -1,19 +1,12 @@
 import React from 'react'
-import CourseHeadingComponent from "../components/courseList/CourseHeadingComponent";
-import CourseTableComponent from "../components/courseList/CourseTableComponent";
-import CourseGridComponent from "../components/courseList/CourseGridComponent";
-// import CourseService from "../services/CourseService";
-import ModuleList from "../components/courseEditor/ModuleListComponent";
-import CourseEditorComponent from "../components/courseEditor/CourseEditorComponent";
-
-// const courseService = new CourseService()
-
-import {createCourse, findAllCourses, deleteCourse} from '../services/CourseService'
+import {createCourse, findAllCourses, deleteCourse, updateCourse} from '../services/CourseService'
 import CourseListComponent from "../components/courseList/CourseListComponent";
 
-import {BrowserRouter as Router, Route, Link} from "react-router-dom";
-import Page1 from "../components/Page1";
-import Page2 from "../components/Page2";
+import {BrowserRouter as Router, Route} from "react-router-dom";
+import CourseEditorComponent from "../components/courseEditor/CourseEditorComponent";
+import CourseGridComponent from "../components/courseList/CourseGridComponent";
+import CourseTableComponent from "../components/courseList/CourseTableComponent";
+
 
 class CourseManagerContainer extends React.Component {
     state = {
@@ -30,12 +23,6 @@ class CourseManagerContainer extends React.Component {
             courses: courses
         })
 
-        // courseService.findAllCourses()
-        //     .then(courses => {
-        //         this.setState({
-        //             courses: courses
-        //         })
-        //     })
     }
 
     deleteCourse = async (deletedToCourse) => {
@@ -44,22 +31,7 @@ class CourseManagerContainer extends React.Component {
         this.setState({
             courses: courses
         })
-        // courseService.deleteCourse(deletedToCourse._id)
-        //     .then(status => {
-        //         return courseService.findAllCourses()
-        //     })
-        //     .then(courses => {
-        //         this.setState({
-        //             courses: courses
-        //         })
-        //     })
 
-        // this.setState(prevState => ({
-        //         courses: prevState.courses.filter(course =>
-        //             course._id !== deletedToCourse._id
-        //         )
-        //     })
-        // )
     }
 
     addCourse = () => {
@@ -74,17 +46,16 @@ class CourseManagerContainer extends React.Component {
             })
         })
 
-        // this.setState(prevState => ({
-        //     courses: [
-        //         ...prevState.courses,
-        //         {
-        //             _id: (new Date()).getTime() + '',
-        //             title: prevState.newCourseTitle
-        //         }
-        //     ]
-        // })
-        // )
     }
+    saveCourse = async (courseId, savedCourse) => {
+        const status = await updateCourse(courseId, savedCourse);
+        console.log(status);
+        const courses = await findAllCourses();
+        this.setState({
+            courses: courses,
+        })
+
+    };
 
     toggle = () => {
         this.setState(prevState => ({
@@ -99,10 +70,7 @@ class CourseManagerContainer extends React.Component {
         })
     }
 
-    // (state1) ==== event1 ====> (state2)
-    // (state1) ==== event2 ====> (state3)
-    // ==== eventX ====> (stateY)
-    //
+
     editCourse = (course) => {
         this.setState(prevState => ({
             courses: prevState.courses.map(c => {
@@ -129,23 +97,18 @@ class CourseManagerContainer extends React.Component {
     render() {
         return (
             <div className="container-fluid">
-                <h1>Course Manager</h1>
-
                 <Router>
-                    {/*<Link to="/page1">Page 1</Link>*/}
-                    {/*<Link to="/page2">Page 2</Link>*/}
-                    {/*<Route path="/page1" component={Page1}/>*/}
-                    {/*<Route path="/page2" component={Page2}/>*/}
-
                     <Route
                         path="/"
                         exact={true}
                         render={() =>
                             <CourseListComponent
+                                hideEditor={this.hideEditor}
                                 updateFormState={this.updateFormState}
                                 newCourseTitle={this.state.newCourseTitle}
                                 addCourse={this.addCourse}
                                 toggle={this.toggle}
+                                saveCourse={this.saveCourse}
                                 deleteCourse={this.deleteCourse}
                                 courses={this.state.courses}
                                 layout={this.state.layout}
@@ -162,7 +125,7 @@ class CourseManagerContainer extends React.Component {
                                 hideEditor={this.hideEditor}/>
                         }/>
                     <Route
-                        path="/course-editor/:courseId/module/:moduleId"
+                        path="/course-editor/:courseId/modules/:moduleId"
                         exact={true}
                         render={(props) =>
                             <CourseEditorComponent
@@ -172,7 +135,7 @@ class CourseManagerContainer extends React.Component {
                                 hideEditor={this.hideEditor}/>
                         }/>
                     <Route
-                        path="/course-editor/:courseId/module/:moduleId/lesson/:lessonId"
+                        path="/course-editor/:courseId/modules/:moduleId/lessons/:lessonId"
                         exact={true}
                         render={(props) =>
                             <CourseEditorComponent
@@ -183,17 +146,17 @@ class CourseManagerContainer extends React.Component {
                                 hideEditor={this.hideEditor}/>
                         }/>
                     <Route
-                        path="/course-editor/:courseId/module/:moduleId/lesson/:lessonId/topic/:topicId"
+                        path="/course-editor/:courseId/modules/:moduleId/lessons/:lessonId/topics/:topicId"
                         exact={true}
                         render={(props) =>
                             <CourseEditorComponent
                                 {...props}
+                                topicId={props.match.params.topicId}
                                 lessonId={props.match.params.lessonId}
                                 moduleId={props.match.params.moduleId}
                                 courseId={props.match.params.courseId}
-                                topicId={props.match.params.topicId}/>
+                                hideEditor={this.hideEditor}/>
                         }/>
-
 
                 </Router>
             </div>

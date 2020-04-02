@@ -16,11 +16,17 @@ class WidgetList extends React.Component {
         widget: {
             id: ''
         },
-        widgetType: ""
+        testWidget : this.props.widgets,
+        allWidgets: [],
+        widgetType: "",
+        maxOrder: 0,
+        val : -1,
+        maxOfOrder: -1
     }
     componentDidMount() {
         this.props.findWidgetsForTopic(this.props.topicId);
-        // this.props.findAllWidgets();
+        this.setState(this.props.findWidgetsForTopic(this.props.topicId));
+        this.getMaxOrder();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -28,6 +34,48 @@ class WidgetList extends React.Component {
             this.props.findWidgetsForTopic(this.props.topicId);
         }
     }
+    getMaxOrder = () => {
+
+        let od = this.state.maxOrder;
+        this.props.widgets.map(widget => {
+            console.log(widget.order)
+            od = od < widget.order? widget.order : od;
+        });
+        if (od !== this.state.maxOrder) {
+            this.setState({maxOrder : od}
+            )
+        }
+    };
+
+    addWidget = async () => {
+        let c = -1;
+        let as = await findWidgetsForTopic(this.props.topicId);
+        for (var i = 0; i < as.length; i++) {
+            if (as[i].order > c) {
+                c = as[i].order
+            }
+        }
+        this.setState(prevState => {
+            prevState.maxOfOrder = c;
+        });
+        this.props.createWidget(this.props.topicId,
+            {
+                title: "New Widget",
+                type: "HEADING",
+                topicId: this.props.topicId,
+                order: c + 1,
+                id: (new Date()).getTime() + ""
+            })
+    };
+
+    change = () => {
+
+        this.props.widgets.map(widget => {
+            if (this.state.val < widget.order) this.setState({val : widget.order + 1});
+        });
+
+
+    };
 
     changeWidgetType = (type) => {
 
@@ -49,51 +97,59 @@ class WidgetList extends React.Component {
     render(){
         return(
             <div>
-
-            <div>
-                {this.props.widgets && this.props.widgets.map(widget =>
-                        <div key={widget.id}>
-                            {widget.type === "HEADING" &&
-                            <HeadingWidget
-                                updateWidget = {this.updateWidget}
-                                saveWidget={this.saveWidget}
-                                editingWidgetId = {this.state.editingWidgetId}
-                                editing={this.state.editingWidgetId === widget.id}
-                                deleteWidget={this.props.deleteWidget}
-                                {...this.props}
-                                widget={widget}/>}
-                            {widget.type === "PARAGRAPH" &&
-                            <ParagraphWidget
-                                updateWidget={this.updateWidget}
-                                saveWidget={this.saveWidget}
-                                editingWidgetId = {this.state.editingWidgetId}
-                                editing={this.state.editingWidgetId === widget.id}
-                                deleteWidget={this.props.deleteWidget}
-                                {...this.props}
-                                widget={widget}/>}
-                            <span>
-                                {   this.state.editingWidgetId !== widget.id &&
-                                    <button onClick={
+                <div>
+                    {console.log(this.props.widgets)}
+                    {this.props.widgets && this.props.widgets.sort((a, b) =>
+                        (a.order > b.order)? 1 : -1).map(widget =>
+                        <div key={widget.id} className="card">
+                            <div className={"card-body"}>
+                                {widget.type === "HEADING" &&
+                                <HeadingWidget
+                                    topicId={this.props.topicId}
+                                    widgets={this.props.widgets}
+                                    updateWidget = {this.updateWidget}
+                                    saveWidget={this.saveWidget}
+                                    editingWidgetId = {this.state.editingWidgetId}
+                                    editing={this.state.editingWidgetId === widget.id}
+                                    deleteWidget={this.props.deleteWidget}
+                                    {...this.props}
+                                    widget={widget}/>}
+                                {widget.type === "PARAGRAPH" &&
+                                <ParagraphWidget
+                                    topicId={this.props.topicId}
+                                    widgets={this.props.widgets}
+                                    updateWidget = {this.updateWidget}
+                                    saveWidget={this.saveWidget}
+                                    editingWidgetId = {this.state.editingWidgetId}
+                                    editing={this.state.editingWidgetId === widget.id}
+                                    deleteWidget={this.props.deleteWidget}
+                                    {...this.props}
+                                    widget={widget}/>}
+                                <span>
+                                    {this.state.editingWidgetId !== widget.id &&
+                                    <i className={"float-right fas fa-pen float-right"} onClick={
                                         () => this.setState({
-                                        editingWidgetId: widget.id,
-                                        widget: widget
-                                    })}>
-                                        Edit
-                                    </button>
-                                }
-                            </span>
+                                            editingWidgetId: widget.id,
+                                            widget: widget
+                                        })}/>
+                                    }
+                                </span>
+                            </div>
                         </div>
                     )
-                }
-                <div>
-                    <i onClick={
-                        () =>
-                            this.props.createWidget(this.props.topicId)}
-                       className="fas fa-plus-circle fa-2x float-right"/>
+                    }
                     <br/>
-
+                    <div>
+                        <i onClick={
+                            () => {
+                                this.change();
+                                this.addWidget();
+                            }
+                        }
+                           className="fas fa-plus-circle fa-2x float-right"/>
+                        <br/>
+                    </div>
                 </div>
-            </div>
             </div>
         )
     }
@@ -122,16 +178,11 @@ const dispatchToPropertyMapper = (dispatcher) => ({
                 type: 'DELETE_WIDGET',
                 widgetId: widgetId
             })),
-    createWidget: (topicId) =>
-        createWidget(topicId, {
-            title: "New Widget",
-            type: "HEADING",
-            topicId: topicId,
-            id: (new Date()).getTime() + ""
-        }).then(actualWidget => dispatcher({
-                type: "ADD_WIDGET",
-                widget: actualWidget
-            })),
+    createWidget: (topicId, newTopic) =>
+        createWidget(topicId, newTopic).then(actualWidget => dispatcher({
+            type: "ADD_WIDGET",
+            widget: actualWidget
+        })),
     findAllWidgets: () =>
         findAllWidgets()
             .then(actualWidgets => dispatcher({

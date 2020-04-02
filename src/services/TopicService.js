@@ -1,26 +1,30 @@
-import {LESSONS_API_URL, LESSONS_LESSONS_API_URL, TOPICS_API_URL} from "../common/constants";
+import {LESSONS_TOPICS_API_URL, TOPICS_API_URL} from "../common/constants";
 
 export const findTopicsForLesson = (lessonId) =>
-    fetch(`https://wbdv-generic-server.herokuapp.com/api/001358744/lesson/${lessonId}/topics`)
-        .then(response => response.json())
+    fetch(LESSONS_TOPICS_API_URL(lessonId))
+        .then(response => response.json());
 
-export const createTopic = (lessonId, topic) =>
-    fetch(`https://wbdv-generic-server.herokuapp.com/api/001358744/lesson/${lessonId}/topics`, {
+export const createTopic = (lessonId, lesson) =>
+    fetch(LESSONS_TOPICS_API_URL(lessonId), {
         method: "POST",
-        body: JSON.stringify(topic),
+        body: JSON.stringify(lesson),
         headers: {
             'content-type': 'application/json'
         }
-    }).then(response => response.json())
+    }).then(response => response.json());
 
-export const updateTopic = async (topic) =>
-{
-    const response = await fetch(`${TOPICS_API_URL}/${topic._id}`, {
-        method: 'PUT',
-        body: JSON.stringify(topic),
+export const updateTopic = (lessonId, lesson) =>
+    fetch(`${TOPICS_API_URL}/${lessonId}`, {
+        method: "PUT",
+        body: JSON.stringify(lesson),
         headers: {
             'content-type': 'application/json'
         }
-    })
-    return await response.json()
-}
+    }).then(response => response.json());
+
+export const deleteTopic = (lessonId) =>
+    fetch(`${TOPICS_API_URL}/${lessonId}`, {
+        method: "DELETE",
+    }).then(response => response.json());
+
+

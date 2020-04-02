@@ -6,8 +6,45 @@
   height: 40vmin;
   pointer-events: none;
 }
+.editor-title {
+  color: white;
+}
+.fas {
+  cursor: pointer;
+  padding: 5px;
+  /*padding-left: 1em;*/
+}
+.btn-warning {
+  height: 43px;
+  width: 45px;
+  margin: 5px;
+}
+.btn-danger {
+  height: 43px;
+  width: 45px;
+  margin: 5px;
+}
+.fa-toggle-off {
+  color: gray;
+}
+.custom-select {
+  margin: 7px;
+}
+.nav-lesson {
+  margin: 10px;
+}
+.nav-pills {
+  margin: 10px;
+}
 .fa-plus-circle {
+  cursor: pointer;
   color: red;
+}
+.lesson-plus {
+  position: relative;
+  /* Adjust these values accordingly */
+  top: 10px;
+  left: 5px;
 }
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
